@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Регистрация — Заметки</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card" style="max-width: 420px; margin: 60px auto;">
+      <h1>Регистрация</h1>
+      <form id="register-form">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <input id="username" placeholder="Логин (3–50 символов)" required minlength="3" maxlength="50" autocomplete="username">
+          <input id="password" type="password" placeholder="Пароль (минимум 6)" required minlength="6" autocomplete="new-password">
+          <button type="submit">Зарегистрироваться</button>
+        </div>
+        <p class="error" id="error"></p>
+        <p class="muted">Уже есть аккаунт? <a href="/static/login.html">Войти</a></p>
+      </form>
+    </div>
+  </div>
+  <script type="module" src="/static/js/register.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Мои заметки</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Шапка -->
+    <div class="card header">
+      <div>
+        <h1>Мои заметки</h1>
+        <div class="muted">Пользователь: <span class="user" id="current-user">…</span></div>
+      </div>
+      <button id="logout-btn">Выйти</button>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card">
+      <h2>Поиск и фильтры</h2>
+      <div class="filters">
+        <input id="search" placeholder="Поиск по тексту">
+        <select id="tag-filter">
+          <option value="">Все теги</option>
+        </select>
+        <select id="sort">
+          <option value="created_desc">Сначала новые</option>
+          <option value="created_asc">Сначала старые</option>
+          <option value="title_asc">Заголовок A→Я</option>
+          <option value="title_desc">Заголовок Я→A</option>
+        </select>
+        <button id="apply-filters">Применить</button>
+      </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="card">
+      <h2>Статистика по тегам</h2>
+      <div id="stats-list" class="muted">Загрузка...</div>
+    </div>
+
+    <!-- Теги: управление -->
+    <div class="card">
+      <h2>Мои теги</h2>
+      <div class="row">
+        <input id="new-tag-name" placeholder="Название тега" maxlength="50">
+        <button id="create-tag" style="flex:0 0 auto;width:auto;padding:8px 16px;">Добавить тег</button>
+      </div>
+      <div id="tags-list" style="margin-top:10px;"></div>
+      <p class="error" id="tag-error"></p>
+    </div>
+
+    <!-- Новая заметка -->
+    <div class="card">
+      <h2>Новая заметка</h2>
+      <form id="create-form">
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <input id="title" placeholder="Заголовок" required maxlength="200">
+          <textarea id="content" placeholder="Текст заметки" required></textarea>
+          <label style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="is-pinned"> Закрепить
+          </label>
+          <div class="muted">Теги (можно выбрать несколько):</div>
+          <div id="tags-select" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+          <button type="submit">Создать заметку</button>
+        </div>
+        <p class="error" id="create-error"></p>
+      </form>
+    </div>
+
+    <!-- Список заметок -->
+    <div class="card">
+      <h2>Заметки</h2>
+      <div id="loading" class="muted hidden">Загрузка...</div>
+      <div id="empty" class="muted hidden">Пока нет заметок. Добавь первую!</div>
+      <p class="error" id="list-error"></p>
+      <div id="notes-list"></div>
+      <div class="center" style="margin-top:12px;">
+        <button id="load-more" class="hidden" style="width:auto;padding:8px 20px;">Показать ещё</button>
+      </div>
+    </div>
+
+  </div>
+  <script type="module" src="/static/js/index.js"></script>
+</body>
+</html>
