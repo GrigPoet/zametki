@@ -3,87 +3,148 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Мои заметки</title>
+  <meta name="color-scheme" content="dark">
+  <title>Заметки — рабочее пространство</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <div class="container">
+  <div class="cursor-glow" aria-hidden="true"></div>
 
-    <!-- Шапка -->
-    <div class="card header">
-      <div>
-        <h1>Мои заметки</h1>
-        <div class="muted">Пользователь: <span class="user" id="current-user">…</span></div>
+  <div class="app">
+
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <rect x="3" y="3" width="26" height="26" rx="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M11 21V11l10 10V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>Заметки</strong>
+          <small>рабочее пространство</small>
+        </span>
       </div>
-      <button id="logout-btn">Выйти</button>
-    </div>
 
-    <!-- Фильтры -->
-    <div class="card">
-      <h2>Поиск и фильтры</h2>
-      <div class="filters">
-        <input id="search" placeholder="Поиск по тексту">
-        <select id="tag-filter">
-          <option value="">Все теги</option>
-        </select>
-        <select id="sort">
-          <option value="created_desc">Сначала новые</option>
-          <option value="created_asc">Сначала старые</option>
-          <option value="title_asc">Заголовок A→Я</option>
-          <option value="title_desc">Заголовок Я→A</option>
-        </select>
-        <button id="apply-filters">Применить</button>
-      </div>
-    </div>
-
-    <!-- Статистика -->
-    <div class="card">
-      <h2>Статистика по тегам</h2>
-      <div id="stats-list" class="muted">Загрузка...</div>
-    </div>
-
-    <!-- Теги: управление -->
-    <div class="card">
-      <h2>Мои теги</h2>
-      <div class="row">
-        <input id="new-tag-name" placeholder="Название тега" maxlength="50">
-        <button id="create-tag" style="flex:0 0 auto;width:auto;padding:8px 16px;">Добавить тег</button>
-      </div>
-      <div id="tags-list" style="margin-top:10px;"></div>
-      <p class="error" id="tag-error"></p>
-    </div>
-
-    <!-- Новая заметка -->
-    <div class="card">
-      <h2>Новая заметка</h2>
-      <form id="create-form">
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <input id="title" placeholder="Заголовок" required maxlength="200">
-          <textarea id="content" placeholder="Текст заметки" required></textarea>
-          <label style="display:flex; align-items:center; gap:8px;">
-            <input type="checkbox" id="is-pinned"> Закрепить
-          </label>
-          <div class="muted">Теги (можно выбрать несколько):</div>
-          <div id="tags-select" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
-          <button type="submit">Создать заметку</button>
+      <div class="side-block">
+        <div class="side-label">Аккаунт</div>
+        <div class="user-row">
+          <span class="avatar" id="user-avatar">…</span>
+          <div class="user-meta">
+            <span class="user" id="current-user">…</span>
+            <small>вы вошли в систему</small>
+          </div>
         </div>
-        <p class="error" id="create-error"></p>
-      </form>
-    </div>
-
-    <!-- Список заметок -->
-    <div class="card">
-      <h2>Заметки</h2>
-      <div id="loading" class="muted hidden">Загрузка...</div>
-      <div id="empty" class="muted hidden">Пока нет заметок. Добавь первую!</div>
-      <p class="error" id="list-error"></p>
-      <div id="notes-list"></div>
-      <div class="center" style="margin-top:12px;">
-        <button id="load-more" class="hidden" style="width:auto;padding:8px 20px;">Показать ещё</button>
+        <button id="logout-btn" class="ghost-btn" type="button">Выйти</button>
       </div>
-    </div>
 
+      <div class="side-block">
+        <div class="side-label">Мои теги</div>
+        <div class="tag-create">
+          <input id="new-tag-name" placeholder="Новый тег" maxlength="50">
+          <button id="create-tag" class="icon-btn" type="button" title="Добавить тег" aria-label="Добавить тег">+</button>
+        </div>
+        <div id="tags-list"></div>
+        <p class="error" id="tag-error"></p>
+      </div>
+
+      <div class="side-block">
+        <div class="side-label">Статистика по тегам</div>
+        <div id="stats-list" class="muted">Загрузка...</div>
+      </div>
+
+      <div class="side-foot">Личное пространство · 2026</div>
+    </aside>
+
+    <main class="main">
+
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Коллекция</p>
+          <h1>Мои заметки</h1>
+          <p class="muted">Мысли, списки и планы — в одном спокойном месте.</p>
+        </div>
+        <div class="head-actions">
+          <button id="export-csv" type="button" class="ghost-btn">Экспорт CSV</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Поиск и фильтры</h2>
+          <span class="hint">Enter — применить</span>
+        </div>
+        <div class="filters">
+          <div class="search-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M20 20l-3.2-3.2"/>
+            </svg>
+            <input id="search" placeholder="Поиск по тексту">
+          </div>
+          <select id="tag-filter" aria-label="Фильтр по тегу">
+            <option value="">Все теги</option>
+          </select>
+          <select id="sort" aria-label="Сортировка">
+            <option value="created_desc">Сначала новые</option>
+            <option value="created_asc">Сначала старые</option>
+            <option value="title_asc">Заголовок A→Я</option>
+            <option value="title_desc">Заголовок Я→A</option>
+          </select>
+          <label class="inline">
+            <input type="checkbox" id="pinned-only"> Только закреплённые
+          </label>
+          <button id="apply-filters" type="button">Применить</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Новая заметка</h2>
+          <span class="hint">Черновик</span>
+        </div>
+        <form id="create-form">
+          <div class="form-grid">
+            <input id="title" placeholder="Заголовок" required maxlength="200">
+            <textarea id="content" placeholder="Текст заметки..." required></textarea>
+
+            <div class="muted">Теги (можно выбрать несколько):</div>
+            <div id="tags-select" class="tag-picker"></div>
+
+            <div class="form-row">
+              <label class="inline">
+                <input type="checkbox" id="is-pinned"> Закрепить
+              </label>
+              <button type="submit">Создать заметку</button>
+            </div>
+          </div>
+          <p class="error" id="create-error"></p>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Заметки</h2>
+          <span class="hint">Лента</span>
+        </div>
+        <div id="loading" class="muted hidden">Загрузка...</div>
+        <div id="empty" class="empty-state hidden">
+          <strong>Пока пусто</strong>
+          <span>Создайте первую заметку — она появится здесь.</span>
+        </div>
+        <p class="error" id="list-error"></p>
+        <div id="notes-list" class="notes-grid"></div>
+        <div class="center" style="margin-top:16px;">
+          <button id="load-more" class="ghost-btn hidden" type="button">Показать ещё</button>
+        </div>
+      </section>
+
+    </main>
   </div>
+
   <script type="module" src="/static/js/index.js"></script>
 </body>
 </html>

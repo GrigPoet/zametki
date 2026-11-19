@@ -3,24 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
   <title>Вход — Заметки</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-  <div class="container">
-    <div class="card" style="max-width: 420px; margin: 60px auto;">
-      <h1>Вход</h1>
-      <form id="login-form">
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <input id="username" placeholder="Логин" required minlength="3" maxlength="50" autocomplete="username">
-          <input id="password" type="password" placeholder="Пароль" required minlength="6" autocomplete="current-password">
-          <button type="submit">Войти</button>
-        </div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <main class="auth">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <rect x="3" y="3" width="26" height="26" rx="8" stroke="currentColor" stroke-width="2"/>
+            <path d="M11 21V11l10 10V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="brand-text">
+          <strong>Заметки</strong>
+          <small>рабочее пространство</small>
+        </span>
+      </div>
+
+      <p class="eyebrow">С возвращением</p>
+      <h1>Вход в аккаунт</h1>
+      <p class="auth-sub muted">Введите логин и пароль, чтобы открыть свои записи.</p>
+
+      <form id="login-form" class="auth-form">
+        <input id="username" placeholder="Логин" required minlength="3" maxlength="50" autocomplete="username">
+        <input id="password" type="password" placeholder="Пароль" required minlength="6" autocomplete="current-password">
+        <button type="submit">Войти</button>
         <p class="error" id="error"></p>
-        <p class="muted">Нет аккаунта? <a href="/static/register.html">Зарегистрироваться</a></p>
       </form>
+
+      <p class="auth-switch muted">Нет аккаунта? <a href="/static/register.html">Зарегистрироваться</a></p>
     </div>
-  </div>
+  </main>
+
   <script type="module" src="/static/js/auth.js"></script>
 </body>
 </html>

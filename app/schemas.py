@@ -2,7 +2,6 @@ from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 
 
-# ============ AUTH ============
 class UserRegister(BaseModel):
     username: str = Field(min_length=3, max_length=50)
     password: str = Field(min_length=6, max_length=100)
@@ -20,7 +19,6 @@ class UserOut(BaseModel):
     created_at: datetime
 
 
-# ============ TAG ============
 class TagCreate(BaseModel):
     name: str = Field(min_length=1, max_length=50)
 
@@ -31,7 +29,6 @@ class TagOut(BaseModel):
     name: str
 
 
-# ============ NOTE ============
 class NoteCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     content: str = Field(min_length=1)

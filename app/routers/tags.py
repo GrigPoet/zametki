@@ -26,12 +26,16 @@ def create_tag(
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
+    name = payload.name.strip()
+    if not name:
+        raise HTTPException(status_code=422, detail="Tag name must not be empty")
+
     dup = db.scalar(
-        select(Tag).where(Tag.owner_id == user.id, Tag.name == payload.name)
+        select(Tag).where(Tag.owner_id == user.id, Tag.name == name)
     )
     if dup:
         raise HTTPException(status_code=400, detail="Tag already exists")
-    tag = Tag(name=payload.name, owner_id=user.id)
+    tag = Tag(name=name, owner_id=user.id)
     db.add(tag)
     db.commit()
     db.refresh(tag)

@@ -18,6 +18,7 @@ form.addEventListener("submit", async (e) => {
     await api("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ username, password }),
+      redirectOn401: false,
     });
     window.location.href = "/static/index.html";
   } catch (e) {

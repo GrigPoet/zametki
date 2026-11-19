@@ -2,11 +2,14 @@ import { api } from "./api.js";
 
 const els = {
   user: document.getElementById("current-user"),
+  avatar: document.getElementById("user-avatar"),
   logout: document.getElementById("logout-btn"),
   search: document.getElementById("search"),
   tagFilter: document.getElementById("tag-filter"),
   sort: document.getElementById("sort"),
   applyFilters: document.getElementById("apply-filters"),
+  pinnedOnly: document.getElementById("pinned-only"),
+  exportCsv: document.getElementById("export-csv"),
   statsList: document.getElementById("stats-list"),
   newTagName: document.getElementById("new-tag-name"),
   createTag: document.getElementById("create-tag"),
@@ -30,6 +33,7 @@ const state = {
   offset: 0,
   search: "",
   tagId: "",
+  pinnedOnly: false,
   sort: "created_desc",
   tags: [],
   totalLoaded: 0,
@@ -40,8 +44,11 @@ async function init() {
   try {
     const me = await api("/api/auth/me");
     els.user.textContent = me.username;
+    if (els.avatar) {
+      els.avatar.textContent = me.username.charAt(0).toUpperCase();
+    }
   } catch {
-    return; // api() уже сделал редирект на login
+    return;
   }
 
   bindEvents();
@@ -62,9 +69,14 @@ function bindEvents() {
   els.applyFilters.addEventListener("click", () => {
     state.search = els.search.value.trim();
     state.tagId = els.tagFilter.value;
+    state.pinnedOnly = els.pinnedOnly.checked;
     state.sort = els.sort.value;
     reloadNotes();
   });
+
+  els.pinnedOnly.addEventListener("change", () => els.applyFilters.click());
+
+  els.exportCsv.addEventListener("click", onExportCsv);
 
   els.search.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
@@ -77,6 +89,15 @@ function bindEvents() {
 
   els.createForm.addEventListener("submit", onCreateNote);
   els.createTag.addEventListener("click", onCreateTag);
+}
+
+function onExportCsv() {
+  const params = new URLSearchParams();
+  if (state.search) params.set("search", state.search);
+  if (state.tagId) params.set("tag_id", state.tagId);
+  if (state.pinnedOnly) params.set("pinned_only", "true");
+  const qs = params.toString();
+  window.location.href = "/api/notes/export" + (qs ? `?${qs}` : "");
 }
 
 async function loadTags() {
@@ -148,10 +169,9 @@ function renderTagsList(tags) {
     const del = document.createElement("button");
     del.type = "button";
     del.textContent = "×";
-    del.className = "danger";
-    del.style.width = "auto";
-    del.style.padding = "2px 8px";
-    del.style.background = "#c53030";
+    del.className = "tag-del";
+    del.title = "Удалить тег";
+    del.setAttribute("aria-label", `Удалить тег ${t.name}`);
     del.addEventListener("click", () => onDeleteTag(t.id));
 
     wrap.appendChild(tag);
@@ -231,6 +251,7 @@ async function loadNotes(reset) {
   });
   if (state.search) params.set("search", state.search);
   if (state.tagId) params.set("tag_id", state.tagId);
+  if (state.pinnedOnly) params.set("pinned_only", "true");
 
   try {
     const notes = await api(`/api/notes?${params.toString()}`);
@@ -290,6 +311,11 @@ function renderNote(note) {
   const actions = document.createElement("div");
   actions.className = "note-actions";
 
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.textContent = "Изменить";
+  editBtn.addEventListener("click", () => startEdit(card, note));
+
   const pinBtn = document.createElement("button");
   pinBtn.type = "button";
   pinBtn.textContent = note.is_pinned ? "Открепить" : "Закрепить";
@@ -301,11 +327,132 @@ function renderNote(note) {
   delBtn.textContent = "Удалить";
   delBtn.addEventListener("click", () => onDeleteNote(note.id));
 
+  actions.appendChild(editBtn);
   actions.appendChild(pinBtn);
   actions.appendChild(delBtn);
   card.appendChild(actions);
 
   return card;
+}
+
+function startEdit(card, note) {
+  card.innerHTML = "";
+
+  const form = document.createElement("form");
+  form.className = "edit-form";
+
+  const titleInput = document.createElement("input");
+  titleInput.value = note.title;
+  titleInput.maxLength = 200;
+  titleInput.required = true;
+
+  const contentInput = document.createElement("textarea");
+  contentInput.value = note.content;
+  contentInput.required = true;
+
+  const pinnedLabel = document.createElement("label");
+  pinnedLabel.className = "inline";
+  const pinnedInput = document.createElement("input");
+  pinnedInput.type = "checkbox";
+  pinnedInput.checked = note.is_pinned;
+  pinnedLabel.appendChild(pinnedInput);
+  pinnedLabel.appendChild(document.createTextNode("Закрепить"));
+
+  const tagsTitle = document.createElement("div");
+  tagsTitle.className = "muted";
+  tagsTitle.textContent = "Теги:";
+
+  const tagsBox = document.createElement("div");
+  tagsBox.className = "tags-checkboxes";
+  const selected = new Set(note.tags.map((t) => t.id));
+
+  if (state.tags.length === 0) {
+    const span = document.createElement("span");
+    span.className = "muted";
+    span.textContent = "Тегов пока нет.";
+    tagsBox.appendChild(span);
+  } else {
+    for (const t of state.tags) {
+      const label = document.createElement("label");
+      label.className = "inline";
+      const cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = t.id;
+      cb.checked = selected.has(t.id);
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(t.name));
+      tagsBox.appendChild(label);
+    }
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "note-actions";
+
+  const saveBtn = document.createElement("button");
+  saveBtn.type = "submit";
+  saveBtn.textContent = "Сохранить";
+
+  const cancelBtn = document.createElement("button");
+  cancelBtn.type = "button";
+  cancelBtn.className = "secondary";
+  cancelBtn.textContent = "Отмена";
+  cancelBtn.addEventListener("click", () => {
+    card.replaceWith(renderNote(note));
+  });
+
+  actions.appendChild(saveBtn);
+  actions.appendChild(cancelBtn);
+
+  const err = document.createElement("p");
+  err.className = "error";
+
+  form.appendChild(titleInput);
+  form.appendChild(contentInput);
+  form.appendChild(pinnedLabel);
+  form.appendChild(tagsTitle);
+  form.appendChild(tagsBox);
+  form.appendChild(actions);
+  form.appendChild(err);
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    err.textContent = "";
+
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+    if (!title || !content) {
+      err.textContent = "Заполните заголовок и текст.";
+      return;
+    }
+
+    const tag_ids = Array.from(
+      tagsBox.querySelectorAll("input[type=checkbox]:checked")
+    ).map((cb) => parseInt(cb.value, 10));
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Сохранение...";
+
+    try {
+      await api(`/api/notes/${note.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          title,
+          content,
+          is_pinned: pinnedInput.checked,
+          tag_ids,
+        }),
+      });
+      await loadStats();
+      await reloadNotes();
+    } catch (ex) {
+      err.textContent = ex.message;
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Сохранить";
+    }
+  });
+
+  card.appendChild(form);
+  titleInput.focus();
 }
 
 async function onCreateNote(e) {
@@ -371,4 +518,28 @@ async function onDeleteNote(id) {
   }
 }
 
+function initSpotlight() {
+  if (window.matchMedia("(hover: none)").matches) return;
+
+  let frame = 0;
+  let x = window.innerWidth / 2;
+  let y = 0;
+
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      x = e.clientX;
+      y = e.clientY;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        document.body.style.setProperty("--mx", `${x}px`);
+        document.body.style.setProperty("--my", `${y}px`);
+        frame = 0;
+      });
+    },
+    { passive: true }
+  );
+}
+
+initSpotlight();
 init();
